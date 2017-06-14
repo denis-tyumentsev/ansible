@@ -1,0 +1,72 @@
+---
+# configure systems and make checks
+# remeber: the order of host configuration is important and 
+# it is configured here
+
+# standalone services first! (such as db, mail, proxy etc...)
+- hosts: mysql
+  roles:
+    - firewall
+    - mysql
+
+- hosts: redis
+  roles:
+    - firewall
+    - redis
+
+- hosts: mail
+  roles:
+    - firewall
+    - mail
+
+- hosts: sentry
+  roles:
+    - firewall
+    - sentry
+
+- hosts: haproxy
+  roles:
+    - haproxy
+
+# dependent services (such as erouter, fx etc..)
+- hosts: sso
+  roles:
+    - firewall
+    - sso
+
+- hosts: erouter
+  roles:
+    - firewall
+    - erouter
+
+- hosts: fx
+  roles:
+    - firewall
+    - fx
+
+# applications
+- hosts: flow
+  roles:
+    - firewall
+    - flow
+
+- hosts: flow-calculator
+  roles:
+    - firewall
+    - flow-calculator
+
+- hosts: gtr
+  roles:
+    - firewall
+    - gtr
+
+- hosts: dashboards
+  roles:
+    - firewall
+    - dashboards
+
+- hosts: matrix
+  roles:
+    - firewall
+    - matrix
+

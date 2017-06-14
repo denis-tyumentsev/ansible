@@ -1,0 +1,74 @@
+---
+# shared variables for all hosts
+# use this notation: 
+# host: dns name to access the server via haproxy:
+#       all this names resolves as haproxy server
+# dns: dns name of server 
+# ip: ip of server
+
+flow:
+  host: {{ FLOW._dns }}
+  ip: {{ FLOW.IP }}
+  dns: {{ FLOW.Name }}
+
+gtr:
+  host: {{ GTR._dns }}
+  ip: {{ GTR.IP }}
+  dns: {{ GTR.Name }}
+
+dashboard:
+  host: {{ DASHBOARDS._dns }}
+  ip: {{ DASHBOARDS.IP }}
+  dns: {{ DASHBOARDS.Name }}
+
+mysql_db:
+  host: {{ DB.Name }}
+  ip: {{ DB.IP }}
+  master:
+    ip: {{ DB01.IP }}
+  slave:
+    ip: {{ DB02.IP }}
+
+redis_db:
+  host: {{ REDIS.Name }}
+
+erouter:
+  host: {{ EROUTER._dns }}
+  ip: {{ EROUTER.IP }}
+  dns: {{ EROUTER.Name }}
+
+fx:
+  host: {{ FX._dns }}
+  ip: {{ FX.IP }}
+  dns: {{ FX.Name }}
+
+mailer:
+  smtp:
+    host: {{ MAIL.Name }}
+
+sentry:
+  host: {{ SENTRY._dns }}
+  ip: {{ SENTRY.IP }}
+  dns: {{ SENTRY.Name }}
+
+sso:
+  domain: {{ system.domain }}
+  host: {{ SSO._dns }}
+  ip: {{ SSO.IP }}
+  dns: {{ SSO.Name }}
+
+matrix:
+  host: {{ MATRIX._dns }}
+  ip: {{ MATRIX.IP }}
+  dns: {{ MATRIX.Name }}
+
+haproxy:
+  host: {{ HAPROXY._dns }}
+  ip: {{ HAPROXY.IP }}
+  dns: {{ HAPROXY.Name }}
+
+firewall:
+  trusted: {{ Config.network }} # 10.116.32.0/24 - default
+
+system:
+  name: {{ system.name }}

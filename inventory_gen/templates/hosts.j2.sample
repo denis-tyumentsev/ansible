@@ -1,0 +1,50 @@
+# standalone services (such as db, mail, proxy etc...)
+[mysql]
+mysql       ansible_host={{ DB01.Name.lower() }}
+
+[redis]
+redis       ansible_host={{ REDIS.Name.lower() }}
+
+[mail]
+mail        ansible_host={{ MAIL.Name.lower() }}
+
+[sentry]
+sentry      ansible_host={{ SENTRY.Name.lower() }}
+
+[haproxy]
+haproxy     ansible_host={{ HAPROXY.Name.lower() }}
+
+
+# dependent services (such as erouter, fx etc..)
+[sso]
+sso         ansible_host={{ SSO.Name.lower() }}
+
+[erouter]
+erouter     ansible_host={{ EROUTER.Name.lower() }}
+
+[fx]
+fx          ansible_host={{ FX.Name.lower() }}
+
+
+# applications
+[flow]
+flow                   ansible_host={{ FLOW.Name.lower() }}
+
+[flow-calculator]
+flow-calculator        ansible_host={{ FLOW.Name.lower() }}
+
+[gtr]
+gtr         ansible_host={{ GTR.Name.lower() }}
+
+[dashboards]
+dashboards  ansible_host={{ DASHBOARDS.Name.lower() }}
+
+[matrix]
+matrix      ansible_host={{ MATRIX.Name.lower() }}
+
+
+# common variables
+[all:vars]
+ansible_user=
+ansible_become=true
+ansible_become_pass=

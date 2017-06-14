@@ -1,0 +1,67 @@
+---
+# shared variables for all hosts
+# use this notation:
+# host: dns name to access the server via haproxy:
+#       all this names resolves as haproxy server
+# dns: dns name of server
+# ip: ip of server
+
+flow:
+  host: flow.master.e-c.io
+  ip: 10.116.32.12
+
+gtr:
+  host: gtr.master.e-c.io
+  ip: 10.116.32.13
+
+dashboard:
+  host: dashboard.master.e-c.io
+  ip: 10.116.32.11
+
+mysql_db:
+  host: so-master-db.moscow.eurochem.ru
+  ip: 10.116.32.21
+  master:
+    ip: 10.116.32.19
+  slave:
+    ip: 10.116.32.20
+
+redis_db:
+  host: so-master-redis.moscow.eurochem.ru
+
+erouter:
+  host: erouter.master.e-c.io
+  dns: so-master-erouter.moscow.eurochem.ru
+  ip: 10.116.32.18
+
+fx:
+  host: fx.master.e-c.io
+  ip: 10.116.32.14
+
+mailer:
+  smtp:
+    host: so-master-mail.moscow.eurochem.ru
+
+sentry:
+  host: sentry.master.e-c.io
+  ip: 10.116.32.22
+
+sso:
+  host: sso.master.e-c.io
+  domain: e-c.io
+  ip: 10.116.32.16
+
+matrix:
+  host: so-master-matrix.moscow.eurochem.ru
+  ip: 10.116.32.15
+
+haproxy:
+  host: haproxy.master.e-c.io
+  ip: 10.116.32.10
+
+firewall:
+  trusted: 10.116.32.0/26
+
+system:
+  name: master
+

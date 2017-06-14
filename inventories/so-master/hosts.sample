@@ -1,0 +1,38 @@
+[flow]
+flow        ansible_host=so-master-flow.moscow.eurochem.ru
+
+[flow-calculator]
+flow-calculator        ansible_host=so-master-flow.moscow.eurochem.ru
+
+[gtr]
+gtr         ansible_host=so-master-gtr.moscow.eurochem.ru
+
+[dashboards]
+dashboards  ansible_host=so-master-dashboards.moscow.eurochem.ru
+
+[fx]
+fx          ansible_host=so-master-fx.moscow.eurochem.ru
+
+[erouter]
+erouter     ansible_host=so-master-erouter.moscow.eurochem.ru
+
+[sso]
+sso         ansible_host=so-master-sso.moscow.eurochem.ru
+
+[matrix]
+matrix      ansible_host=so-master-matrix.moscow.eurochem.ru
+
+[sentry]
+sentry      ansible_host=so-master-sentry.moscow.eurochem.ru
+
+[haproxy]
+haproxy      ansible_host=so-master-haproxy.moscow.eurochem.ru
+
+[redis]
+redis      ansible_host=so-master-redis.moscow.eurochem.ru
+
+# common variables
+[all:vars]
+ansible_user=ansible
+ansible_become=true
+ansible_become_pass='sudo_password'
