@@ -1,0 +1,25 @@
+---
+# tasks file for nginx
+
+# external vars:
+#   nginx.conf_template   (example: nginx/noodoo.conf.j2)
+#   nginx.conf_dest       (example: /etc/nginx/conf.d/noodoo.conf)
+
+- name: Update nginx server config
+  template:
+    src: "{{ nginx.conf_template }}"
+    dest: "{{ nginx.conf_dest }}"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+    backup: yes
+    force: yes
+  notify: restart nginx with check
+  tags: configuration
+
+# service check task
+- debug: msg="Nginx check service status"
+  notify: check nginx
+  changed_when: true   
+  tags: status
+

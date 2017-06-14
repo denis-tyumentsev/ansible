@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+CHECK_IP=$(hostname --ip-address)
+CHECK_FILE='/home/ansible/mysql/last_reset_db_run'
+
+SRC_DB_HOST=so-master-db01.moscow.eurochem.ru
+SRC_DB_USER={{ mysql_user }}
+SRC_DB_PASS='{{ mysql_pass }}'
+
+DST_MASTER_HOST='{{ mysql_db.master.ip }}'
+DST_MASTER_USER={{ mysql_user }}
+DST_MASTER_PASS='{{ mysql_pass }}'
+
+DST_SLAVE_HOST='{{ mysql_db.slave.ip }}'
+DST_SLAVE_USER={{ mysql_user }}
+DST_SLAVE_PASS='{{ mysql_pass }}'
+
+DUMP_FILE='/home/ansible/mysql/master-dump.sql'
+
+src_login="-h${SRC_DB_HOST} -u${SRC_DB_USER} -p${SRC_DB_PASS}"
+dst_master_login="-h${DST_MASTER_HOST} -u${DST_MASTER_USER} -p${DST_MASTER_PASS}"
+dst_slave_login="-h${DST_SLAVE_HOST} -u${DST_SLAVE_USER} -p${DST_SLAVE_PASS}"
+
+main() {
+  if [[ "$CHECK_IP" != "$(cat $CHECK_FILE)" ]]; then
+    update_check_file
+    reset_db
+  else
+    log 'no need to reset db...'
+  fi
+}
+
+update_check_file() {
+  touch "$CHECK_FILE"
+  echo "$CHECK_IP" > "$CHECK_FILE"
+}
+
+log() {
+  echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S%z')]: $@"
+}
+
+reset_db() {
+  log 'starting db reset..'
+
+  mysql ${src_login} -v -e "show global variables like 'GTID_EXECUTED';"
+  mysql ${src_login} -v -e "show global variables like 'GTID_PURGED';"
+
+  log 'lock master db'
+  mysql ${src_login} -v -e "FLUSH TABLES WITH READ LOCK; SET GLOBAL read_only = ON;"
+
+  log 'dumping db...'
+  mysqldump ${src_login} -v --all-databases --triggers --routines > ${DUMP_FILE}
+
+  log 'master db unlock'
+  mysql ${src_login} -v -e "SET GLOBAL read_only = OFF; UNLOCK TABLES;"
+
+  log "loading dump into ${DST_MASTER_HOST} master"
+  mysql ${dst_master_login} -v -e "RESET MASTER;"
+
+  mysql ${dst_master_login} < ${DUMP_FILE}
+
+  mysql ${dst_master_login} -v -e "update mysql.user set host='${DST_SLAVE_HOST}' where user='repl'; flush privileges;"
+
+  log "loading dump into ${DST_SLAVE_HOST} master"
+  mysql ${dst_slave_login} -v -e "RESET MASTER;"
+
+  mysql ${dst_slave_login} < ${DUMP_FILE}
+
+  mysql ${dst_slave_login} -v -e "STOP SLAVE; CHANGE MASTER TO MASTER_HOST='${DST_MASTER_HOST}', MASTER_AUTO_POSITION = 1;"
+
+  mysql ${dst_slave_login} -v -e "START SLAVE;"
+
+  log 'check master-slave status:'
+  mysql ${dst_slave_login} -v -e "show slave status\G" | grep 'Slave_IO_Running: Yes' &>/dev/null && echo 'IO Running: SUCCESS'
+
+  mysql ${dst_slave_login} -v -e "show slave status\G" | grep 'Slave_SQL_Running: Yes' &>/dev/null && echo 'SQL Running: SUCCESS'
+
+  log 'Success!'
+}
+
+main "$@"

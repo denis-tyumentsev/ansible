@@ -1,0 +1,38 @@
+---
+# tasks file for firewall
+
+- name: check trusted network configuration
+  shell: firewall-cmd --zone=trusted --list-all | grep sources | grep '{{ firewall.trusted }}'
+  register: trusted
+  ignore_errors: True
+  tags: status
+
+- name: get trusted network configuration
+  shell: firewall-cmd --zone=trusted --list-all | egrep -o '([0-9]{1,3}[\.]){3}[0-9]{1,3}\/[0-9]{1,2}'
+  register: nets
+  ignore_errors: True
+  when: trusted | failed
+  tags: status
+
+- name: show configured trusted network sources
+  debug: 
+    var: nets.stdout_lines
+  when: trusted | failed
+  tags: status
+
+- name: remove all trusted networks 
+  command: firewall-cmd --zone=trusted --remove-source='{{ item }}' --permanent
+  with_items: "{{ nets.stdout_lines | default([]) }}"
+  when: trusted | failed
+  tags: configuration
+
+- name: update trusted network configuration
+  command: firewall-cmd --add-source='{{ firewall.trusted }}' --zone=trusted --permanent
+  when: trusted | failed
+  tags: configuration
+
+- name: reload firewall
+  command: firewall-cmd --reload
+  when: trusted | failed
+  tags: configuration
+

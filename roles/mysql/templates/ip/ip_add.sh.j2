@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+CHECK_IP=$(hostname --ip-address)
+CHECK_FILE='/home/ansible/ip/last_ip_add_run'
+SECONDARY_IP='{{ mysql_db.ip }}'
+
+main() {
+  if [[ "$CHECK_IP" != "$(cat $CHECK_FILE)" ]]; then
+    update_check_file
+    ip_add
+  else
+    log 'no need to add ip...'
+  fi
+}
+
+update_check_file() {
+  touch "$CHECK_FILE"
+  echo "$CHECK_IP" > "$CHECK_FILE"
+}
+
+log() {
+  echo -e "\n[$(date +'%Y-%m-%d %H:%M:%S%z')]: $@"
+}
+
+ip_add() {
+  log 'Creating new ip address..'
+  sudo ip addr add "${SECONDARY_IP}/32" dev "$(ip link | grep -o -E 'eno[0-9]+')"
+  log 'Success!'
+}
+
+main "$@"
+

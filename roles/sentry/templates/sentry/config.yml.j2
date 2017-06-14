@@ -1,0 +1,35 @@
+# While a lot of configuration in Sentry can be changed via the UI, for all
+# new-style config (as of 8.0) you can also declare values here in this file
+# to enforce defaults or to ensure they cannot be changed via the UI. For more
+# information see the Sentry documentation.
+
+###############
+# Mail Server #
+###############
+
+mail.backend: 'smtp'  # Use dummy if you want to disable email entirely
+mail.host: '{{ mailer.smtp.host  }}'
+mail.port: 25
+mail.username: ''
+mail.password: ''
+mail.use-tls: false
+mail.from: 'sentry@{{ sentry.host  }}'
+
+# The URL prefix in which Sentry is accessible.
+# This will be used both for referencing URLs in the UI, as well as in outbound notifications.
+system.url-prefix: 'http://{{ sentry.host }}'
+
+# If this file ever becomes compromised, it's important to regenerate your a new key
+# Changing this value will result in all current sessions being invalidated.
+# A new key can be generated with `$ sentry config generate-secret-key`
+system.secret-key: ')_0og*an4sla!w9-0h%r7_!4!m37qk*j4^s-f=&+ukm69z%tq+'
+
+# The ``redis.clusters`` setting is used, unsurprisingly, to configure Redis
+# clusters. These clusters can be then referred to by name when configuring
+# backends such as the cache, digests, or TSDB backend.
+redis.clusters:
+  default:
+    hosts:
+      0:
+        host: 127.0.0.1
+        port: 6379

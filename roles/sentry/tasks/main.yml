@@ -1,0 +1,30 @@
+---
+# tasks file for gtr
+
+- name: Start Sentry service
+  service:
+    name: supervisord.service
+    state: started
+  tags: configuration
+
+- name: Start Redis service
+  service:
+    name: redis.service
+    state: started
+  tags: configuration
+
+- name: Update sentry config.yml
+  template:
+    src: sentry/config.yml.j2
+    dest: /etc/sentry/config.yml
+    owner: root
+    group: root
+    backup: yes
+    force: yes
+  notify: restart sentry
+  tags: configuration
+
+- name: Sentry service check status
+  command: systemctl status supervisord.service
+  tags: status
+

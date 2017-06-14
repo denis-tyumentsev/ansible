@@ -1,0 +1,15 @@
+---
+# tasks file for redis
+
+- name: Redis flush database check
+  command: /etc/redis/redis_flush_ansible.sh
+  register: redis
+  tags: configuration
+
+- debug: var=redis.stdout_lines    
+  tags: configuration
+
+- name: Redis service check status
+  command: systemctl status redis.service
+  tags: status
+

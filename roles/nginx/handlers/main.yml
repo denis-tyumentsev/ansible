@@ -1,0 +1,22 @@
+---
+# handlers file for nginx
+
+- name: "restart nginx with check"
+  command: nginx -t
+  notify: "restart nginx"
+
+- name: "restart nginx"
+  service:
+    name: nginx
+    state: restarted
+  notify: "check nginx"
+
+- name: "reload nginx"
+  service:
+    name: nginx
+    state: reloaded
+  notify: "check nginx"
+
+- name: "check nginx"
+  command: systemctl status nginx
+

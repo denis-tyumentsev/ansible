@@ -1,0 +1,64 @@
+---
+# tasks file for restore slave node of mysql cluster
+
+- name: Copy ip_add.sh script to {{ mysql_db.master.ip }}
+  template:
+    src: ip/ip_add.sh.j2
+    dest: /home/ansible/ip/ip_add.sh
+    mode: "u+x"
+  tags: configuration
+
+- name: Execute ip_add.sh for adding secondary ip
+  command: /home/ansible/ip/ip_add.sh
+  register: ip_add
+  tags: configuration
+
+- name: Report status of ip adding
+  debug: var=ip_add.stdout_lines
+  tags: configuration
+
+- name: Copy mysql_restore.sh script to {{ mysql_db.master.ip }}
+  template:
+    src: mysql/mysql_restore.sh.j2
+    dest: /home/ansible/mysql/mysql_restore.sh
+    mode: "u+x"
+  tags: configuration
+
+- name: Mysql restore script execute
+  command: /home/ansible/mysql/mysql_restore.sh
+  register: mysql
+  tags: configuration
+
+- name: Report status of mysql restore
+  debug: var=mysql.stdout_lines
+  tags: configuration
+
+# status checks
+- name: mysql check slave IO Running status
+  shell: "mysql -h{{ mysql_db.slave.ip }} -u{{ mysql_user }} -p'{{ mysql_pass }}' -e \"show slave status\\G\" | grep 'Slave_IO_Running':' Yes' && echo -n 'IO Running SUCCESS'"
+  register: slave_status1
+  tags: status
+
+- name: Report status of slave IO Running
+  debug: var=slave_status1.stdout_lines
+  tags: status
+
+- name: mysql check slave SQL Running status
+  shell: "mysql -h{{ mysql_db.slave.ip }} -u{{ mysql_user }} -p'{{ mysql_pass }}' -e \"show slave status\\G\" | grep 'Slave_SQL_Running':' Yes' && echo -n 'SQL Running SUCCESS'"
+  register: slave_status2
+  tags: status
+
+- name: Report status of slave SQL Running
+  debug: var=slave_status2.stdout_lines
+  tags: status
+
+- name: Check second ip enabled on db master
+  shell: ip addr show $(ip link | grep -o -E 'eno[0-9]+') | grep 'inet ' | wc -l 
+  register: ip_check
+  tags: status
+
+- debug: 
+    msg: Warning! No secondary ip detected on db master! You should check that it exists on db slave.
+  when: ip_check.stdout == "1"
+  tags: status
+

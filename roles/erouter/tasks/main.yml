@@ -1,0 +1,48 @@
+---
+# tasks file for erouter
+
+- name: Update erouter systems - copy script
+  template:
+    src: mysql/mysql_erouter.sh.j2
+    dest: /home/ansible/mysql/mysql_erouter.sh
+    owner: ansible
+    group: ansible
+    mode: "u+x"
+  tags: configuration
+
+- name: Update erouter systems - execute script
+  command: /home/ansible/mysql/mysql_erouter.sh
+  register: mysql_erouter
+  tags: configuration
+
+- name: Update erouter systems - report status
+  debug: var=mysql_erouter.stdout_lines
+  tags: configuration  
+
+- name: Update erouter database-admin config
+  template:
+    src: erouter/database-admin.conf.j2
+    dest: /home/erouter/erouter-admin/config/database.yml
+    owner: erouter
+    group: erouter
+    backup: yes
+    force: yes
+  notify: restart services
+  tags: configuration
+
+- name: Update erouter database config
+  template:
+    src: erouter/database.conf.j2
+    dest: /home/erouter/erouter/config/database.yml
+    owner: erouter
+    group: erouter
+    backup: yes
+    force: yes
+  notify: restart services
+  tags: configuration
+
+- debug: msg="services check status"
+  notify: check services
+  changed_when: true
+  tags: status
+

@@ -1,0 +1,10 @@
+defaults: &defaults
+  adapter: mysql2
+  database: erouter
+  encoding: utf8
+  host: {{ mysql_db.host }}
+  login: erouter
+  password: F8101BTH5opX
+development: *defaults
+production: *defaults
+

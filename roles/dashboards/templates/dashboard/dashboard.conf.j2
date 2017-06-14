@@ -1,0 +1,23 @@
+NODE_ENV=development
+MOUNT_POINT=/prod
+
+DEBUG=superagent,dashboard:*
+
+# Trust local nginx and f5 balancer
+TRUST_PROXY="loopback, {{ haproxy.ip  }}"
+
+SYS_ENV=prod
+SYS_LAST_UPDATED=2016-10-25
+
+SSO_URL=http://{{ sso.host }}/
+SSO_SYSTEM=dashboard
+
+DOV_URL=http://dov.eurochem.ru
+FLEXIBLE_URL=http://{{ fx.host }}/fx
+GATHERING_URL=http://{{ gtr.host }}/gathering
+FLOW_URL=http://{{ flow.host }}
+
+MEMCACHED_URL=localhost:11211
+# DB used for people names
+DB=mysql://flow:u84RL5Ocqfnk@{{ mysql_db.host }}/flow
+

@@ -1,0 +1,7 @@
+---
+# tasks file for mail
+
+- name: Postfix service check status
+  command: systemctl status postfix.service
+  tags: status
+

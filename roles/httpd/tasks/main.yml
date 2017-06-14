@@ -1,0 +1,25 @@
+---
+# tasks file for httpd
+
+# external vars:
+#   httpd.conf_template     (example: httpd/sso.conf.j2)
+#   httpd.conf_dest         (example: /home/sso/sso/shared/sso.conf)
+#   httpd.conf_owner        (example: sso)
+#   httpd.conf_group        (example: sso)
+
+- name: Update httpd server config
+  template:
+    src: "{{ httpd.conf_template }}"
+    dest: "{{ httpd.conf_dest }}"
+    owner: "{{ httpd.conf_owner }}"
+    group: "{{ httpd.conf_group }}"
+    backup: yes
+    force: yes
+  notify: restart httpd with check
+  tags: configuration
+
+- debug: msg="Httpd check service status"
+  notify: check httpd
+  changed_when: true
+  tags: status
+

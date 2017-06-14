@@ -1,0 +1,13 @@
+---
+# handlers file for sentry
+
+- name: restart sentry
+  service:
+    name: supervisord.service
+    state: restarted
+  notify: restart nginx
+
+- name: restart nginx
+  service:
+    name: nginx.service
+    state: restarted

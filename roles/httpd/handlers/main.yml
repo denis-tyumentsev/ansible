@@ -1,0 +1,22 @@
+---
+# handlers file for httpd
+
+- name: "restart httpd with check"
+  command: httpd -t
+  notify: "restart httpd"
+
+- name: "restart httpd"
+  service:
+    name: httpd
+    state: restarted
+  notify: "check httpd"
+
+- name: "reload httpd"
+  service:
+    name: httpd
+    state: reloaded
+  notify: "check httpd"
+
+- name: "check httpd"
+  command: systemctl status httpd
+

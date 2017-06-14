@@ -1,0 +1,15 @@
+---
+# vars file for erouter
+
+mysql_user: 
+mysql_pass: 
+
+services:
+  - erouter-admin
+  - erouter-core@core.service
+  - erouter-core@backup.service
+  - erouter-veiled@mysql.service
+  - erouter-veiled@oracle.service
+  - erouter-transfer-finalizer@1.service
+  - erouter-transfer-worker@1.service
+

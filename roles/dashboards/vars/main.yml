@@ -1,0 +1,7 @@
+---
+# vars file for dashboards
+
+nginx:
+  conf_template: nginx/dashboards.conf.j2
+  conf_dest: /etc/nginx/conf.d/dashboards.conf
+

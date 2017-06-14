@@ -1,0 +1,5 @@
+---
+# handlers file for haproxy
+
+- include: ../common/handlers/services.yml
+

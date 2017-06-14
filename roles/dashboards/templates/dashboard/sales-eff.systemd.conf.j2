@@ -1,0 +1,16 @@
+[Unit]
+Description=Sales-efficiency organizer application server
+
+[Service]
+ExecStart=/bin/sh -ec "cd /var/www/sales-efficiency/app && /usr/bin/node ./index.js >>/var/log/noodoo/sales-efficiency.log 2>&1"
+Restart=always
+User=noodoo
+Group=noodoo
+EnvironmentFile=/var/www/sales-efficiency/shared/env/config.conf
+Environment="PORT=3200"
+Environment="PID_FILE=/var/www/sales-efficiency/shared/pids/sales-efficiency.pid"
+Environment="DB=mysql://flow:u84RL5Ocqfnk@{{ mysql_db.host }}/flow"
+
+[Install]
+WantedBy=multi-user.target
+

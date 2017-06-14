@@ -1,0 +1,15 @@
+---
+# handlers file for dashboards
+
+- name: restart dashboard
+  systemd:
+    name: dashboard
+    state: restarted
+    daemon_reload: yes
+
+- name: restart sales-efficiency
+  systemd:
+    name: sales-efficiency
+    state: restarted
+    daemon_reload: yes
+

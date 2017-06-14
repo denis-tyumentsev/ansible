@@ -1,0 +1,17 @@
+[Unit]
+Description=Dashboard organizer application server
+
+[Service]
+ExecStart=/bin/sh -ec "/usr/bin/node ./index.js >>/var/log/noodoo/dashboard.log 2>&1"
+WorkingDirectory=/var/www/dashboard/app
+Restart=always
+User=noodoo
+Group=noodoo
+EnvironmentFile=/var/www/dashboard/shared/env/config.conf
+Environment="PORT=3100"
+Environment="PID_FILE=/var/www/dashboard/shared/pids/dashboard.pid"
+Environment="SENTRY_DSN=http://c6ef4a8e85134b1d83dec108a6a19e5b:78651e83f1b841f1a1bc18375156a257@{{ sentry.host }}/4"
+
+[Install]
+WantedBy=multi-user.target
+

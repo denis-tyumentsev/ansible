@@ -1,0 +1,158 @@
+#---------------------------------------------------------------------
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+  # to have these messages end up in /var/log/haproxy.log you will
+  # need to:
+  #
+  # 1) configure syslog to accept network log events.  This is done
+  #  by adding the '-r' option to the SYSLOGD_OPTIONS in
+  #  /etc/sysconfig/syslog
+  #
+  # 2) configure local2 events to go to the /var/log/haproxy.log
+  #   file. A line like the following can be added to
+  #   /etc/sysconfig/syslog
+  #
+  #  local2.*             /var/log/haproxy.log
+  #
+  log         127.0.0.1 local2
+
+  chroot      /var/lib/haproxy
+  pidfile     /var/run/haproxy.pid
+  maxconn     4000
+  user        haproxy
+  group       haproxy
+  daemon
+
+  # turn on stats unix socket
+  stats socket /var/lib/haproxy/stats
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+  mode                    http
+  log                     global
+  option                  httplog
+  option                  dontlognull
+  option http-server-close
+  option forwardfor       except 127.0.0.0/8
+  option                  redispatch
+  retries                 3
+  timeout http-request    10s
+  timeout queue           1m
+  timeout connect         10s
+  timeout client          1m
+  timeout server          1m
+  timeout http-keep-alive 10s
+  timeout check           10s
+  maxconn                 3000
+
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+frontend  http
+  bind *:80
+  # no need. many systems will not work with prefixes
+  #acl fx_app           path_beg /fx
+  #acl dashboard_app    path_beg /dashboard
+  #acl flow_app         path_beg /flow
+  #acl gtr_app          path_beg /gtr
+  #acl matrix_app       path_beg /matrix
+  #acl sso_app          path_beg /sso
+  #acl erouter_app      path_beg /erouter
+
+  acl fx_app_ec         hdr_beg(Host) -i fx.
+  acl dashboard_app_ec  hdr_beg(Host) -i dashboard.
+  acl flow_app_ec       hdr_beg(Host) -i flow.
+  acl gtr_app_ec        hdr_beg(Host) -i gtr.
+  acl matrix_app_ec     hdr_beg(Host) -i matrix.
+  acl sso_app_ec        hdr_beg(Host) -i sso.
+  acl erouter_app_ec    hdr_beg(Host) -i erouter.
+  acl sentry_app_ec     hdr_beg(Host) -i sentry.
+
+  use_backend fx_srv         if fx_app_ec
+  use_backend dashboard_srv  if dashboard_app_ec
+  use_backend flow_srv       if flow_app_ec
+  use_backend gtr_srv        if gtr_app_ec
+  use_backend matrix_srv     if matrix_app_ec
+  use_backend erouter_srv    if erouter_app_ec
+  use_backend sso_srv        if sso_app_ec
+  use_backend sentry_srv     if sentry_app_ec
+
+#---------------------------------------------------------------------
+# static backend for serving up images, stylesheets and such
+#---------------------------------------------------------------------
+backend fx_srv
+  balance roundrobin
+  server {{ fx.host }} {{ fx.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ fx.host }} {{ fx.ip }}:80 check
+
+backend dashboard_srv
+  balance roundrobin
+  server {{ dashboard.host }} {{ dashboard.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ dashboard.host }} {{ dashboard.ip }}:80 check
+
+backend flow_srv
+  #reqrep ^([^\ ]*\ /)flow[/]?(.*)     \1\2
+  balance roundrobin
+  server {{ flow.host }} {{ flow.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ flow.host }} {{ flow.ip }}:80 check
+
+backend gtr_srv
+  balance roundrobin
+  server {{ gtr.host }} {{ gtr.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ gtr.host }} {{ gtr.ip }}:80 check
+
+backend matrix_srv
+  balance roundrobin
+  server {{ matrix.host }} {{ matrix.ip }}:10116
+  server {{ matrix.host }} {{ matrix.ip }}:10117
+  server {{ matrix.host }} {{ matrix.ip }}:10118
+  server {{ matrix.host }} {{ matrix.ip }}:10119
+  option tcp-check
+  default-server inter 3s fall 3 rise 2
+  server {{ matrix.host }} {{ matrix.ip }}:10116 check
+  server {{ matrix.host }} {{ matrix.ip }}:10117 check
+  server {{ matrix.host }} {{ matrix.ip }}:10118 check
+  server {{ matrix.host }} {{ matrix.ip }}:10119 check
+
+backend sentry_srv
+  balance roundrobin
+  server {{ sentry.host }} {{ sentry.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ sentry.host }} {{ sentry.ip }}:80 check
+
+backend sso_srv
+  balance roundrobin
+  server {{ sso.host }} {{ sso.ip }}:80
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ sso.host }} {{ sso.ip }}:80 check
+
+backend erouter_srv
+  #reqrep ^([^\ ]*\ /)erouter[/]?(.*)     \1\2
+  balance roundrobin
+  server {{ erouter.host }} {{ erouter.ip }}:8082
+  option httpchk
+  default-server inter 3s fall 3 rise 2
+  server {{ erouter.host }} {{ erouter.ip }}:8082 check
+

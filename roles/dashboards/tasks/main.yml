@@ -1,0 +1,49 @@
+---
+# tasks file for dashboards
+
+- name: Update dashboard env config
+  template:
+    src: dashboard/dashboard.conf.j2
+    dest: /var/www/dashboard/shared/env/config.conf
+    owner: noodoo
+    group: noodoo
+    backup: yes
+    force: yes
+  notify: restart dashboard
+  tags: configuration
+
+- name: Update dashboard systemd
+  template:
+    src: dashboard/dashboard.systemd.conf.j2
+    dest: /etc/systemd/system/dashboard.service
+    owner: root
+    group: root
+    backup: yes
+    force: yes
+  notify: restart dashboard
+  tags: configuration
+
+- name: Update sales-efficiency systemd
+  template:
+    src: dashboard/sales-eff.systemd.conf.j2
+    dest: /etc/systemd/system/sales-efficiency.service
+    owner: root
+    group: root
+    backup: yes
+    force: yes
+  notify: restart sales-efficiency
+  tags: configuration
+
+# check status
+- name: Memcached service check status
+  command: systemctl status memcached
+  tags: status
+
+- name: Dashboard service check status
+  command: systemctl status dashboard
+  tags: status
+
+- name: Sales-efficiency service check status
+  command: systemctl status sales-efficiency
+  tags: status
+
